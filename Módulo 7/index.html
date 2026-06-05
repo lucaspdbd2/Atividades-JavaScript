@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema de Curtidas</title>
+</head>
+<body>  
+    
+    <h2>Sistema de Curtidas</h2>
+
+    <input type="text" id="nomeInput" placeholder="Digite seu nome">
+    <button id="curtirBtn">Curtir</button>
+    <button id="limparBtn">Limpar</button>
+
+    <p id="resultado">Ninguém curtiu</p>
+
+    <script>
+        const input = document.getElementById("nomeInput");
+        const curtirBtn = document.getElementById("curtirBtn");
+        const limparBtn = document.getElementById("limparBtn");
+        const resultado = document.getElementById("resultado");
+
+        let pessoas = JSON.parse(localStorage.getItem("pessoas")) || [];
+
+        curtirBtn.addEventListener("click", function() {
+            const nome = input.value.trim();
+
+            if (nome === "") return;
+
+            if (!pessoas.includes(nome)) {
+                pessoas.push(nome);
+                localStorage.setItem("pessoas", JSON.stringify(pessoas));
+            }
+
+            atualizarTexto();
+            input.value = "";
+        });
+
+        limparBtn.addEventListener("click", function() {
+            pessoas = [];
+            localStorage.removeItem("pessoas");
+            atualizarTexto();
+        });
+
+        function atualizarTexto() {
+            const total = pessoas.length;
+
+            if (total === 0) {
+                resultado.textContent = "Ninguém curtiu";
+            } 
+            else if (total === 1) {
+                resultado.textContent = `${pessoas[0]} curtiu`;
+            } 
+            else if (total === 2) {
+                resultado.textContent = `${pessoas[0]} e ${pessoas[1]} curtiram`;
+            } 
+            else {
+                resultado.textContent = `${pessoas[0]}, ${pessoas[1]} e mais ${total - 2} pessoas curtiram`;
+            }
+        }
+
+        // Atualiza o texto ao carregar a página
+        atualizarTexto();
+    </script>   
+</body>
+</html> 
+
