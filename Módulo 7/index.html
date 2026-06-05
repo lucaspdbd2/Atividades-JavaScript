@@ -1,68 +1,44 @@
 
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sistema de Curtidas</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub User Search</title>
 </head>
-<body>  
-    
-    <h2>Sistema de Curtidas</h2>
-
-    <input type="text" id="nomeInput" placeholder="Digite seu nome">
-    <button id="curtirBtn">Curtir</button>
-    <button id="limparBtn">Limpar</button>
-
-    <p id="resultado">Ninguém curtiu</p>
+<body>
+    <h1>GitHub User Search</h1>
+    <input type="text" id="searchInput" placeholder="Enter GitHub username">
+    <button id="searchButton">Search</button>
+    <ul id="results"></ul>  
 
     <script>
-        const input = document.getElementById("nomeInput");
-        const curtirBtn = document.getElementById("curtirBtn");
-        const limparBtn = document.getElementById("limparBtn");
-        const resultado = document.getElementById("resultado");
+        document.getElementById('searchButton').addEventListener('click', function() {
+            const query = document.getElementById('searchInput').value;
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = ''; // Clear previous results
 
-        let pessoas = JSON.parse(localStorage.getItem("pessoas")) || [];
-
-        curtirBtn.addEventListener("click", function() {
-            const nome = input.value.trim();
-
-            if (nome === "") return;
-
-            if (!pessoas.includes(nome)) {
-                pessoas.push(nome);
-                localStorage.setItem("pessoas", JSON.stringify(pessoas));
-            }
-
-            atualizarTexto();
-            input.value = "";
+            fetch(`https://api.github.com/search/users?q=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.items.length > 0) {
+                        data.items.forEach(user => {
+                            const listItem = document.createElement('li');
+                            listItem.textContent = user.login;
+                            resultsContainer.appendChild(listItem);
+                        });
+                    } else {
+                        resultsContainer.textContent = 'Não foram encontrados usuários para esta pesquisa';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                    resultsContainer.textContent = 'Ocorreu um erro ao buscar os usuários.';
+                });
         });
-
-        limparBtn.addEventListener("click", function() {
-            pessoas = [];
-            localStorage.removeItem("pessoas");
-            atualizarTexto();
-        });
-
-        function atualizarTexto() {
-            const total = pessoas.length;
-
-            if (total === 0) {
-                resultado.textContent = "Ninguém curtiu";
-            } 
-            else if (total === 1) {
-                resultado.textContent = `${pessoas[0]} curtiu`;
-            } 
-            else if (total === 2) {
-                resultado.textContent = `${pessoas[0]} e ${pessoas[1]} curtiram`;
-            } 
-            else {
-                resultado.textContent = `${pessoas[0]}, ${pessoas[1]} e mais ${total - 2} pessoas curtiram`;
-            }
-        }
-
-        // Atualiza o texto ao carregar a página
-        atualizarTexto();
-    </script>   
+    </script>
 </body>
 </html> 
+
 
